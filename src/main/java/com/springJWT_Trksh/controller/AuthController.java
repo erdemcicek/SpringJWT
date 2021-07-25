@@ -48,13 +48,6 @@ public class AuthController {
 		return ResponseEntity.ok("basarili");
 	}
 	
-	
-	
-	
-	
-	
-	
-	
 	@PostMapping("/register")
 	public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest ) {
 		
@@ -108,9 +101,6 @@ public class AuthController {
 			// Veritabanina yeni kaydi ekle.
 			kisiRepository.save(kisi);
 		}
-		
-		
-		
 		
 		return ResponseEntity.ok( new MesajResponse("Kullanici basariyla kaydedildi..."));
 	}
