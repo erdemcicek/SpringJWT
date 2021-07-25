@@ -33,7 +33,6 @@ public class KisiServiceImpl implements UserDetails {
 		this.otoriteler = otoriteler;
 	}
 	
-	
 	public static KisiServiceImpl kisiOlustur(Kisi kisi) {
 		
 		List<GrantedAuthority> otoriteler = kisi.getRoller().stream()
@@ -86,6 +85,4 @@ public class KisiServiceImpl implements UserDetails {
 	public boolean isEnabled() {
 		return true;
 	}
-	
-	
 }
