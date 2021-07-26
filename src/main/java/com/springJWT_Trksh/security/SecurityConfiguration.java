@@ -7,8 +7,12 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.springJWT_Trksh.security.JWT.JwtAuthFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -26,13 +30,36 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		return super.authenticationManagerBean();
 	}
 	
+	@Bean
+	public JwtAuthFilter jwtTokenFilter() {
+		return new JwtAuthFilter();
+	}
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		
-		http.csrf().disable().
+		http.
+				cors().		// Cross Origine Resource Sharing ( UI ve Backend arasinda capraz iletisim icin gereklidir. )
+				and().
+				csrf().disable().
+				sessionManagement().
+				sessionCreationPolicy(SessionCreationPolicy.STATELESS). 	// JSW oturumunun durumsuz oldugunu belirtiriz.
+				and().
 				authorizeRequests().
 				antMatchers("/api/test/**").permitAll().
 				antMatchers("/api/auth/**").permitAll().
 				anyRequest().authenticated().and().httpBasic();
+		
+		
+		
+		http.addFilterBefore(jwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+		
+		
+		
+		
+		
+		
+		
+		
 	}
 }

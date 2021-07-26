@@ -1,13 +1,17 @@
 package com.springJWT_Trksh.controller;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,8 +23,11 @@ import com.springJWT_Trksh.model.KisiRole;
 import com.springJWT_Trksh.repository.KisiRepository;
 import com.springJWT_Trksh.repository.RoleRepository;
 import com.springJWT_Trksh.reqres.LoginRequest;
+import com.springJWT_Trksh.reqres.JwtResponse;
 import com.springJWT_Trksh.reqres.MesajResponse;
 import com.springJWT_Trksh.reqres.RegisterRequest;
+import com.springJWT_Trksh.security.JWT.JwtUtils;
+import com.springJWT_Trksh.service.KisiServiceImpl;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -38,14 +45,37 @@ public class AuthController {
 	@Autowired
 	AuthenticationManager authenticationManager;
 	
+	@Autowired
+	JwtUtils jwtUtil;
+	
 	@PostMapping("/login")
 	public ResponseEntity<?> girisYap(@RequestBody LoginRequest loginRequest){
 		
 		// Kimlik denetiminin yapilmasi
 		Authentication authentication = authenticationManager.
-				authenticate( new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+										authenticate( new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), 
+																							  loginRequest.getPassword()));
 		
-		return ResponseEntity.ok("basarili");
+		// Kisiye gore JWT olusturulmasi ve Security Context'in guncellenmesi
+		SecurityContextHolder.getContext().setAuthentication(authentication);
+		String jwt = jwtUtil.JwtOlustur(authentication);
+		
+		
+		// Kimlik denetimi yapilan kisinin bilgilerinin Service katmanindan alinmasi
+		KisiServiceImpl loginKisi = (KisiServiceImpl) authentication.getPrincipal();
+		
+		// login olan kisinin rollerinin elde edilmesi
+		List<String> roller = loginKisi.getAuthorities().stream().
+										map(item -> item.getAuthority()).
+										collect(Collectors.toList());
+		
+		return ResponseEntity.ok( new JwtResponse(
+														jwt,
+														loginKisi.getId(),
+														loginKisi.getUsername(), 
+														loginKisi.getEmail(), 
+														roller
+												));
 	}
 	
 	@PostMapping("/register")
