@@ -27,4 +27,7 @@ public class KisiService implements UserDetailsService {
 		return KisiServiceImpl.kisiOlustur(kisi);
 	}
 
+	
+	
+	
 }
