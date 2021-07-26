@@ -12,6 +12,7 @@ import lombok.Setter;
 @Entity
 @Table(name="roller")
 public class KisiRole {
+	
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,4 +24,7 @@ public class KisiRole {
 	public KisiRole(ERoller name) {
 		this.name = name;
 	}
+	
+	
+	
 }
